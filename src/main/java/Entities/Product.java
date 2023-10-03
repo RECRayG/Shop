@@ -1,9 +1,12 @@
 package Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class Product {
+    @JsonIgnore
     private Long id_product;
     private String name;
     private BigDecimal expenses;

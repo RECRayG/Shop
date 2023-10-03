@@ -1,8 +1,11 @@
 package Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 
 public class Customer {
+    @JsonIgnore
     private Long id_customer;
     private String firstName;
     private String lastName;

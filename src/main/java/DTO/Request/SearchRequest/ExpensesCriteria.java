@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
-public class ExpensesCriteria {
+public class ExpensesCriteria implements Criteria {
     @JsonProperty("minExpenses")
     private BigDecimal minExpenses;
     @JsonProperty("maxExpenses")

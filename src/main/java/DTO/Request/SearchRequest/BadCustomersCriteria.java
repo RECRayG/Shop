@@ -2,7 +2,7 @@ package DTO.Request.SearchRequest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class BadCustomersCriteria {
+public class BadCustomersCriteria implements Criteria {
     @JsonProperty("badCustomers")
     private Integer badCustomers;
 

@@ -1,9 +1,12 @@
 package Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.Instant;
 import java.util.Objects;
 
 public class Purchase {
+    @JsonIgnore
     private Long id_purchase;
     private Customer customer;
     private Product product;

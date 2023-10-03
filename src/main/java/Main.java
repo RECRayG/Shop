@@ -1,38 +1,14 @@
-import DTO.Request.Criterias;
-import DTO.Request.SearchRequest.LastNameCriteria;
-import DTO.Request.SearchRequest.ProductCriteria;
-import DTO.Request.SearchRequest.SearchCriteria;
+import DTO.Request.SearchRequest.Criterias;
+import DTO.Response.SearchResponse.SearchResponse;
+import DTO.Response.SearchResponse.SearchResults;
+import Entities.Customer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-import java.math.BigDecimal;
 import java.util.*;
+import java.util.ArrayList;
 
 public class Main {
-//    public static void main(String[] args) {
-//        ArrayList<Customer> customers = new ArrayList<>();
-//
-//        // SQL-запрос для поиска покупателей по критериям
-//        String sql = "SELECT * FROM customers WHERE id_customer >= 5";
-//        Connection connection = DatabaseConnection.getInstance().getConnection();
-//
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-//
-//            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-//                while (resultSet.next()) {
-//                    Long id_customer = resultSet.getLong("id_customer");
-//                    String firstName = resultSet.getString("firstName");
-//                    String lastName = resultSet.getString("lastName");
-//                    customers.add(new Customer(id_customer, firstName, lastName));
-//                }
-//            }
-//        } catch (SQLException e) {
-//            System.out.println("Ошибка...");
-//        }
-//
-//        customers.forEach(customer -> {
-//            System.out.println(customer.getId_customer() + ": " + customer.getFirstName() + " " + customer.getLastName());
-//        });
-//    }
     public static void main(String[] args) {
         String json = "{\"criterias\":[" +
                 "{\"lastName\":\"Иванов\"}," +
@@ -42,6 +18,42 @@ public class Main {
                 "{\"badCustomers\":3}" +
                 "]}";
 
+
+
         Criterias criterias = new Criterias(json);
+
+        SearchResults searchResults = new SearchResults();
+        searchResults.setCriteria(criterias.getCriteriaList().get(0));
+        List<Customer> customers = new ArrayList<>();
+        customers.add(new Customer(1L, "-", "-"));
+        customers.add(new Customer(2L, "-", "-"));
+        searchResults.setResults(customers);
+
+        SearchResults searchResults2 = new SearchResults();
+        searchResults2.setCriteria(criterias.getCriteriaList().get(2));
+        List<Customer> customers2 = new ArrayList<>();
+        customers2.add(new Customer(3L, "", ""));
+        customers2.add(new Customer(4L, "", ""));
+        searchResults2.setResults(customers2);
+
+        SearchResponse searchResponse = new SearchResponse();
+        searchResponse.setType("search");
+        List<SearchResults> searchResultsList = new ArrayList<>();
+
+        searchResultsList.add(searchResults);
+        searchResultsList.add(searchResults2);
+        searchResponse.setResults(searchResultsList);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            // Преобразуем объект SearchResponse в JSON строку
+            String json2 = objectMapper.writeValueAsString(searchResponse);
+
+            // Выводим JSON строку
+            System.out.println(json2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

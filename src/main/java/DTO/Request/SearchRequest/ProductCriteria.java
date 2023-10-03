@@ -2,7 +2,7 @@ package DTO.Request.SearchRequest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ProductCriteria {
+public class ProductCriteria implements Criteria {
     @JsonProperty("productName")
     private String productName;
     @JsonProperty("minTimes")

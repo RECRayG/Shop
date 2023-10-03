@@ -1,6 +1,5 @@
-package DTO.Request;
+package DTO.Request.SearchRequest;
 
-import DTO.Request.SearchRequest.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,30 +10,20 @@ public class Criterias {
     @JsonProperty("criterias")
     private List<Object> criterias;
 
-    private List<LastNameCriteria> lastNameCriteriaList;
-    private List<ProductCriteria> productCriteriaList;
-    private List<ExpensesCriteria> expensesCriteriaList;
-    private List<BadCustomersCriteria> badCustomersCriteriaList;
+    private List<Criteria> criteriaList;
 
     public Criterias() {
-        lastNameCriteriaList = new ArrayList<>();
-        productCriteriaList = new ArrayList<>();
-        expensesCriteriaList = new ArrayList<>();
-        badCustomersCriteriaList = new ArrayList<>();
+        criteriaList = new ArrayList<>();
     }
 
     public Criterias(String jsonRequest) {
-        lastNameCriteriaList = new ArrayList<>();
-        productCriteriaList = new ArrayList<>();
-        expensesCriteriaList = new ArrayList<>();
-        badCustomersCriteriaList = new ArrayList<>();
+        criteriaList = new ArrayList<>();
 
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
             Criterias searchCriteria = objectMapper.readValue(jsonRequest, this.getClass());
 
-            // Теперь у вас есть объект searchCriteria, содержащий список критериев
             List<Object> criterias = searchCriteria.getCriterias();
             for (Object crit : criterias) {
                 LinkedHashMap<String, Object> criteria = (LinkedHashMap<String, Object>) crit;
@@ -86,7 +75,7 @@ public class Criterias {
         LastNameCriteria lastNameCriteria = new LastNameCriteria();
         lastNameCriteria.setLastName(lastName);
 
-        lastNameCriteriaList.add(lastNameCriteria);
+        criteriaList.add(lastNameCriteria);
     }
 
     public void addProduct(String productName, Integer minTimes) {
@@ -94,7 +83,7 @@ public class Criterias {
         productCriteria.setProductName(productName);
         productCriteria.setMinTimes(minTimes);
 
-        productCriteriaList.add(productCriteria);
+        criteriaList.add(productCriteria);
     }
 
     public void addExpenses(BigDecimal minExpenses, BigDecimal maxExpenses) {
@@ -102,13 +91,17 @@ public class Criterias {
         expensesCriteria.setMinExpenses(minExpenses);
         expensesCriteria.setMaxExpenses(maxExpenses);
 
-        expensesCriteriaList.add(expensesCriteria);
+        criteriaList.add(expensesCriteria);
     }
 
     public void addBadCustomers(Integer badCustomers) {
         BadCustomersCriteria badCustomersCriteria = new BadCustomersCriteria();
         badCustomersCriteria.setBadCustomers(badCustomers);
 
-        badCustomersCriteriaList.add(badCustomersCriteria);
+        criteriaList.add(badCustomersCriteria);
+    }
+
+    public List<Criteria> getCriteriaList() {
+        return criteriaList;
     }
 }
