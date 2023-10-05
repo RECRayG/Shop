@@ -1,8 +1,10 @@
 package DTO.Request.SearchRequest;
 
+import Exceptions.MySQLException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -16,13 +18,15 @@ public class Criterias {
         criteriaList = new ArrayList<>();
     }
 
-    public Criterias(String jsonRequest) {
+    public Criterias(String jsonFileName) throws MySQLException {
         criteriaList = new ArrayList<>();
 
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            Criterias searchCriteria = objectMapper.readValue(jsonRequest, this.getClass());
+            //Criterias searchCriteria = objectMapper.readValue(jsonRequest, this.getClass());
+
+            Criterias searchCriteria = objectMapper.readValue(new File(System.getProperty("user.dir") + "\\" + jsonFileName), this.getClass());
 
             List<Object> criterias = searchCriteria.getCriterias();
             for (Object crit : criterias) {
@@ -59,7 +63,7 @@ public class Criterias {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Ошибка чтения JSON файла с критерием search");
+            throw new MySQLException(e.getMessage());
         }
     }
 

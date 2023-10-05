@@ -6,9 +6,11 @@ import DTO.Response.StatResponse.CustomerResponse;
 import DTO.Response.StatResponse.StatResponse;
 import Entities.Product;
 import Exceptions.MyExitException;
+import Exceptions.MySQLException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.DayOfWeek;
@@ -30,37 +32,42 @@ public class StatRepository {
         interval = new Stats();
     }
 
-    public String statByPeriod(String json) {
-        StatResponse statResponse = new StatResponse();
-        statResponse.setType(OperationType.stat.name());
-        readJson(json);
-        statResponse.setTotalDays(calculateWorkDay());
-
-        DatabaseConnection.getInstance().initializeConnection();
-
-        List<CustomerResponse> customerResponseList = getStatFromDB();
-        totalCustomersExpenses = getTotalCustomersExpenses();
-        avgCustomersExpenses = getAvgCustomersExpenses();
-
-        DatabaseConnection.getInstance().closeConnection();
-
-        statResponse.setCustomers(customerResponseList);
-        statResponse.setTotalExpenses(totalCustomersExpenses);
-        statResponse.setAvgExpenses(avgCustomersExpenses);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    public String statByPeriod(String json) throws MySQLException {
         try {
-            // Преобразуем объект SearchResponse в JSON строку
-            response = objectMapper.writeValueAsString(statResponse);
-        } catch (Exception e) {
-            System.out.println("Ошибка преобразования в JSON: " + this.getClass().getName());
+            StatResponse statResponse = new StatResponse();
+            statResponse.setType(OperationType.stat.name());
+            readJson(json);
+            statResponse.setTotalDays(calculateWorkDay());
+
+            DatabaseConnection.getInstance().initializeConnection();
+
+            List<CustomerResponse> customerResponseList = getStatFromDB();
+            totalCustomersExpenses = getTotalCustomersExpenses();
+            avgCustomersExpenses = getAvgCustomersExpenses();
+
+            DatabaseConnection.getInstance().closeConnection();
+
+            statResponse.setCustomers(customerResponseList);
+            statResponse.setTotalExpenses(totalCustomersExpenses);
+            statResponse.setAvgExpenses(avgCustomersExpenses);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+            try {
+                // Преобразуем объект SearchResponse в JSON строку
+                response = objectMapper.writeValueAsString(statResponse);
+            } catch (Exception e) {
+                throw new MySQLException(e.getMessage());
+            }
+        }
+        catch (MySQLException e) {
+            throw new MySQLException(e.getMessage());
         }
 
         return response;
     }
 
-    private List<CustomerResponse> getStatFromDB() {
+    private List<CustomerResponse> getStatFromDB() throws MySQLException {
         List<CustomerResponse> customerResponseList = new ArrayList<>();
         String sql = "SELECT DISTINCT cus.id_customer, CONCAT(cus.lastName, ' ', cus.firstName) AS name, cus_total.total_customer_expenses\n" +
                     "FROM purchases pur\n" +
@@ -101,7 +108,7 @@ public class StatRepository {
                 }
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new MySQLException(e.getMessage());
         }
 
         sql = "SELECT cus.id_customer, pr.name as product_name, SUM(pr.expenses) AS total_product_expenses\n" +
@@ -135,7 +142,7 @@ public class StatRepository {
                                         throw new MyExitException();
                                     }
                                 } catch (SQLException e) {
-                                    throw new RuntimeException(e);
+                                    throw new MySQLException(e.getMessage());
                                 } catch (MyExitException e) {
                                     throw new MyExitException();
                                 }
@@ -155,7 +162,7 @@ public class StatRepository {
                 }
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new MySQLException(e.getMessage());
         }
 
         return customerResponseList;
@@ -174,7 +181,7 @@ public class StatRepository {
         return daysBetween;
     }
 
-    private BigDecimal getTotalCustomersExpenses() {
+    private BigDecimal getTotalCustomersExpenses() throws MySQLException {
         BigDecimal totalExpenses = BigDecimal.ZERO;
 
         String sql = "SELECT SUM(total_customer_expenses) AS total_customers_expenses\n" +
@@ -201,13 +208,13 @@ public class StatRepository {
             }
         }
         catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new MySQLException(e.getMessage());
         }
 
         return totalExpenses;
     }
 
-    private Double getAvgCustomersExpenses() {
+    private Double getAvgCustomersExpenses() throws MySQLException {
         Double avgExpenses = 0D;
 
         String sql = "SELECT AVG(total_customer_expenses) AS avg_customers_expenses\n" +
@@ -234,23 +241,25 @@ public class StatRepository {
             }
         }
         catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new MySQLException(e.getMessage());
         }
 
         return avgExpenses;
     }
 
-    private void readJson(String json) {
+    private void readJson(String jsonFileName) throws MySQLException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
         try {
-            this.interval = objectMapper.readValue(json, this.interval.getClass());
+            //this.interval = objectMapper.readValue(json, this.interval.getClass());
+            this.interval = objectMapper.readValue(new File(System.getProperty("user.dir") + "\\" + jsonFileName), this.interval.getClass());
+
             date1 = interval.getStartDate();
             date2 = interval.getEndDate();
 
         } catch (Exception e) {
-            System.out.println("Ошибка чтения JSON файла с критерием stat: " + e.getMessage());
+            throw new MySQLException("Неправильный формат даты (yyyy-MM-dd)");
         }
     }
 }
