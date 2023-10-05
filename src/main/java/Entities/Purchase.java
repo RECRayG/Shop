@@ -2,7 +2,7 @@ package Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class Purchase {
@@ -10,20 +10,20 @@ public class Purchase {
     private Long id_purchase;
     private Customer customer;
     private Product product;
-    private Instant datePurchase;
+    private LocalDate datePurchase;
 
     public Purchase() {
         id_purchase = -1L;
         customer = new Customer();
         product = new Product();
-        datePurchase = Instant.MIN;
+        datePurchase = LocalDate.now();
     }
 
-    public Purchase(Long id_purchase, Customer customer, Product product, Instant datePurchase) {
+    public Purchase(Long id_purchase, Customer customer, Product product) {
         this.id_purchase = id_purchase;
         this.customer = customer;
         this.product = product;
-        this.datePurchase = datePurchase;
+        this.datePurchase = LocalDate.now();
     }
 
     public Long getId_purchase() {
@@ -50,11 +50,11 @@ public class Purchase {
         this.product = product;
     }
 
-    public Instant getDatePurchase() {
+    public LocalDate getDatePurchase() {
         return datePurchase;
     }
 
-    public void setDatePurchase(Instant datePurchase) {
+    public void setDatePurchase(LocalDate datePurchase) {
         this.datePurchase = datePurchase;
     }
 

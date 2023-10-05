@@ -7,7 +7,8 @@ public class StatResponse {
     private String type;
     private Long totalDays;
     private List<CustomerResponse> customers;
-    private BigDecimal avgExpenses;
+    private BigDecimal totalExpenses;
+    private Double avgExpenses;
 
     public String getType() {
         return type;
@@ -33,11 +34,19 @@ public class StatResponse {
         this.customers = customers;
     }
 
-    public BigDecimal getAvgExpenses() {
+    public Double getAvgExpenses() {
         return avgExpenses;
     }
 
-    public void setAvgExpenses(BigDecimal avgExpenses) {
+    public void setAvgExpenses(Double avgExpenses) {
         this.avgExpenses = avgExpenses;
+    }
+
+    public BigDecimal getTotalExpenses() {
+        return totalExpenses;
+    }
+
+    public void setTotalExpenses(BigDecimal totalExpenses) {
+        this.totalExpenses = totalExpenses;
     }
 }

@@ -13,11 +13,6 @@ public class DatabaseConnection {
     private static volatile DatabaseConnection instance;
     private Connection connection;
 
-    // Приватный конструктор для предотвращения создания экземпляров снаружи
-    private DatabaseConnection() {
-        initializeConnection();
-    }
-
     public static DatabaseConnection getInstance() {
         if (instance == null) {
             synchronized (DatabaseConnection.class) {
@@ -28,6 +23,10 @@ public class DatabaseConnection {
         }
 
         return instance;
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
     public void initializeConnection() {
@@ -41,7 +40,13 @@ public class DatabaseConnection {
         }
     }
 
-    public Connection getConnection() {
-        return connection;
+    public void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
